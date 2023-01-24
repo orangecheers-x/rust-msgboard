@@ -1,0 +1,29 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.6.1"
+sqlx = { version = "0.6", features = [ "runtime-tokio-native-tls" , "postgres" , "chrono"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.91"
+tracing = "0.1.37"
+tracing-subscriber = {version = "0.3.16", features = ["std", "env-filter"]}
+futures = "0.3.25"
+tower-http = { version = "0.3.5", features = ["trace"] }
+tracing-core = "0.1.30"
+tower-cookies = "0.8.0"
+base64 = "0.21.0"
+axum-macros = "0.3.1"
+uuid = {version="1.2.2", features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]}
+anyhow = "1.0.68"
+chrono = { version = "0.4.23", features = ["serde"] }
+thiserror = "1.0.38"
