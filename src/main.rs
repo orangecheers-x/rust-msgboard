@@ -7,28 +7,42 @@ use axum::{
 };
 use sqlx::postgres::PgPoolOptions;
 use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    sync::Arc,
+    env,
+    net::{IpAddr, SocketAddr},
 };
 use tower_cookies::CookieManagerLayer;
 use tower_http::trace::TraceLayer;
+use tracing::{info, instrument};
 use tracing_core::Level;
+
 use tracing_subscriber::{filter, layer::SubscriberExt, util::SubscriberInitExt};
 
 use backend::controller::{self, middleware::extract_info};
+use dotenv::dotenv;
 
 // static DB: SyncOnceCe
 
 #[tokio::main]
+#[instrument]
 async fn start() -> Result<(), anyhow::Error> {
     tracing_subscriber::registry()
-        .with(filter::Targets::new().with_target("tower_http::trace", Level::DEBUG))
+        .with(
+            filter::Targets::new()
+                .with_target("tower_http::trace", Level::DEBUG)
+                .with_target("backend", Level::DEBUG),
+        )
         .with(tracing_subscriber::fmt::layer())
         .init();
+    info!("Starting server...");
+    info!(
+        "Listening on {}:{}\n",
+        env::var("LISTEN_IP")?,
+        env::var("LISTEN_PORT")?
+    );
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect("postgres://msgboard:msgboard@192.168.114.12:4321/msgboard")
+        .connect(&env::var("DATABASE_URL")?)
         .await?;
 
     let user_router = Router::new()
@@ -60,7 +74,10 @@ async fn start() -> Result<(), anyhow::Error> {
         .layer(CookieManagerLayer::new())
         .with_state(pool);
 
-    let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
+    let addr = SocketAddr::new(
+        IpAddr::V4(env::var("LISTEN_IP")?.parse()?),
+        env::var("LISTEN_PORT")?.parse()?,
+    );
     Server::bind(&addr)
         .serve(app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
@@ -78,5 +95,6 @@ async fn shutdown_signal() {
 }
 
 fn main() {
+    dotenv().ok();
     start().unwrap()
 }

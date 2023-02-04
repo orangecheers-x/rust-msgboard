@@ -28,6 +28,6 @@ pub fn failed_with_message(s: &str) -> HErr {
     (StatusCode::OK, json!({ "message": s }).into())
 }
 
-pub fn accept_with_message(s: &str) -> Json<Value> {
+pub fn json_with_message(s: &str) -> Json<Value> {
     json!({ "message": s }).into()
 }

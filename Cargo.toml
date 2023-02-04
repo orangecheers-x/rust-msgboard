@@ -27,3 +27,4 @@ uuid = {version="1.2.2", features = [
 anyhow = "1.0.68"
 chrono = { version = "0.4.23", features = ["serde"] }
 thiserror = "1.0.38"
+dotenv = "0.15.0"

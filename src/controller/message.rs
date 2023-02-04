@@ -13,7 +13,7 @@ use crate::{
 };
 
 use super::{
-    response::{accept, accept_with_message},
+    response::{accept, json_with_message},
     RT,
 };
 
