@@ -70,6 +70,13 @@ pub async fn get_user_by_name(pool: &PgPool, name: &str) -> Result<Option<User>>
     Ok(user)
 }
 
+pub async fn get_user_by_email(pool: &PgPool, email: &str) -> Result<Option<User>> {
+    let user = sqlx::query_as!(User, "select * from users where email = $1", email)
+        .fetch_optional(pool)
+        .await?;
+    Ok(user)
+}
+
 pub async fn update_user_uuid(pool: &PgPool, user_id: i32, user_uuid: &str) -> Result<()> {
     sqlx::query!(
         "insert into users_uuid (user_id, uuid) values ($1, $2) on conflict (user_id) do update set uuid = $3 where users_uuid.user_id = $4",

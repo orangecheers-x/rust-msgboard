@@ -4,18 +4,15 @@ use serde_json::{from_value, json, Value};
 use sqlx::PgPool;
 
 use crate::{
+    controller::response::internal_error,
     model::{
         message::{CreateMessageModel, Message},
         user::User,
     },
     repository::message::{create_message, list_message},
-    utility::errors::internal_error,
 };
 
-use super::{
-    response::{accept, json_with_message},
-    RT,
-};
+use super::{response::accept, RT};
 
 pub async fn message_list(State(pool): State<PgPool>) -> RT {
     let msgs = list_message(&pool).await.map_err(internal_error)?;

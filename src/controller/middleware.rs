@@ -10,10 +10,10 @@ use sqlx::PgPool;
 use tower_cookies::Cookies;
 
 use crate::{
-    model::user::User, repository::user::get_user_by_uuid, utility::errors::internal_error,
+    controller::response::internal_error, model::user::User, repository::user::get_user_by_uuid,
 };
 
-use super::{response::not_auth, HErr};
+use super::{response::auth_required, HErr};
 
 pub async fn extract_info<B>(
     State(pool): State<PgPool>,
@@ -47,7 +47,7 @@ pub async fn login_required<B>(mut request: Request<B>, next: Next<B>) -> Result
             json!({"message":"gs"}).into(),
         ))?
         .clone()
-        .ok_or(not_auth())?;
+        .ok_or(auth_required())?;
     request.extensions_mut().insert(user);
     let response = next.run(request).await;
     Ok(response)
