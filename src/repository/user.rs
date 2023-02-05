@@ -6,16 +6,17 @@ use crate::model::{
 use anyhow::Result;
 use sqlx::PgPool;
 
-pub async fn create_user(pool: &PgPool, user: RegisterRequest) -> Result<()> {
-    sqlx::query!(
-        "insert into users (name, email, password) values ($1, $2, $3)",
+pub async fn create_user(pool: &PgPool, user: RegisterRequest) -> Result<User> {
+    let user = sqlx::query_as!(
+        User,
+        "insert into users (name, email, password) values ($1, $2, $3) returning users.*",
         user.name,
         user.email,
         user.password
     )
-    .execute(pool)
+    .fetch_one(pool)
     .await?;
-    Ok(())
+    Ok(user)
 }
 
 pub async fn list_user(pool: &PgPool) -> Result<Vec<User>> {
@@ -32,17 +33,18 @@ pub async fn get_user(pool: &PgPool, id: i32) -> Result<Option<User>> {
     Ok(user)
 }
 
-pub async fn update_user(pool: &PgPool, user: User) -> Result<()> {
-    sqlx::query!(
-        "update users set name = $1, email = $2, password = $3 where id = $4",
+pub async fn update_user(pool: &PgPool, user: User) -> Result<User> {
+    let user = sqlx::query_as!(
+        User,
+        "update users set name = $1, email = $2, password = $3 where id = $4 returning users.*",
         user.name,
         user.email,
         user.password,
         user.id
     )
-    .execute(pool)
+    .fetch_one(pool)
     .await?;
-    Ok(())
+    Ok(user)
 }
 
 pub async fn delete_user(pool: &PgPool, id: i32) -> Result<()> {
